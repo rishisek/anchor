@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-import internal from "stream";
 
 interface IField {
   name: string;
@@ -16,12 +15,16 @@ const FieldSchema = new Schema<IField>({
 export interface IMessage {
   name: string;
   fields: Array<IField>;
+  version: number;
 }
 
 const MessageSchema = new Schema<IMessage>({
   name: { type: String, required: true },
   fields: { type: [FieldSchema], required: true },
+  version: { type: Number, required: true },
 });
+
+MessageSchema.index({ version: -1 });
 
 const MessageModel = model<IMessage>("Message", MessageSchema);
 

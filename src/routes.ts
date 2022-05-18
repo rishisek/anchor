@@ -42,4 +42,32 @@ routes.post("/proto/create", async (req, res, next) => {
   });
 });
 
+routes.post("/proto/update", async (req, res, next) => {
+  await mongoose.connect("mongodb://localhost:8080");
+  let message = new MessageModel(req.body);
+  MessageModel.countDocuments({ name: message.name }).exec((err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send("Database error.");
+    }
+    if (result === 0) {
+      return res
+        .status(400)
+        .send("Message does not exist. Try creating instead.");
+    }
+    message.version = result + 1;
+    message
+      .save()
+      .then(() => {
+        let message_str = protoStringFromSpec(message);
+        res.send(message_str);
+      })
+      .catch((err) => {
+        res.status(400).send(err.message);
+      });
+  });
+
+  res.send("OK");
+});
+
 export default routes;
