@@ -14,17 +14,9 @@
                 "@custom-types/*"
             ]
         },
-        // Process & infer types from .js files.
         "allowJs": true,
-        // // Don't emit; allow Babel to transform files.
-        // "noEmit": true,
-        // Enable strictest settings like strictNullChecks & noImplicitAny.
         "strict": true,
-        // Disallow features that require cross-file information for emit.
         "isolatedModules": true,
-        // Ensure that .d.ts files are created by tsc, but not .js files
-        "declaration": true,
-        "emitDeclarationOnly": true,
     },
     "include": [
         "server"
