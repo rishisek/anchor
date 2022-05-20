@@ -1,6 +1,5 @@
 import { Router } from "express";
-import mongoose, { HydratedDocument } from "mongoose";
-import MessageModel, { IMessage } from "./models/message";
+import proto from "./routes/proto";
 
 const routes = Router();
 
@@ -8,106 +7,6 @@ routes.get("/", (req, res) => {
   return res.json({ message: "Hello World" });
 });
 
-const protoStringFromSpec = (spec: HydratedDocument<IMessage>) => {
-  let message_str = "";
-  message_str += `message ${spec.name} { `;
-  for (const field of spec.fields) {
-    message_str += `${field.type} ${field.name} = ${field.number}; `;
-  }
-  message_str += "}";
-  return message_str;
-};
-
-routes.post("/proto/create", async (req, res, next) => {
-  await mongoose.connect("mongodb://localhost:8080");
-  let message = new MessageModel(req.body);
-
-  MessageModel.findOne({ name: message.name }).exec((err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send("Database error.");
-    }
-    if (result) {
-      return res.status(400).send("Message exists. Try updating instead.");
-    }
-    message.version = 1;
-    message
-      .save()
-      .then(() => {
-        let message_str = protoStringFromSpec(message);
-        res.send(message_str);
-      })
-      .catch((err) => {
-        res.status(400).send(err.message);
-      });
-  });
-});
-
-routes.post("/proto/update", async (req, res, next) => {
-  await mongoose.connect("mongodb://localhost:8080");
-  let message = new MessageModel(req.body);
-  MessageModel.countDocuments({ name: message.name }).exec((err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send("Database error.");
-    }
-    if (result === 0) {
-      return res
-        .status(400)
-        .send("Message does not exist. Try creating instead.");
-    }
-    message.version = result + 1;
-    message
-      .save()
-      .then(() => {
-        let message_str = protoStringFromSpec(message);
-        res.send(message_str);
-      })
-      .catch((err) => {
-        res.status(400).send(err.message);
-      });
-  });
-});
-
-const getMessageHistoryPromise = (message_name: string, count: number) => {
-  return MessageModel.find({ name: message_name }, null, {
-    sort: { version: -1 },
-    limit: count,
-  }).exec();
-};
-
-routes.get("/proto/:message_name", async (req, res, next) => {
-  await mongoose.connect("mongodb://localhost:8080");
-  let message_name = req.params.message_name;
-  let count = 1;
-  getMessageHistoryPromise(message_name, count)
-    .then((result) => {
-      if (!result) {
-        return res.status(400).send("Message does not exist.");
-      }
-      return res.send(protoStringFromSpec(result[0]));
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.status(500).send("Database error.");
-    });
-});
-
-routes.get("/proto/:message_name/history", async (req, res, next) => {
-  await mongoose.connect("mongodb://localhost:8080");
-  let message_name = req.params.message_name;
-  let count = req.query.count ? +req.query.count : 10;
-  getMessageHistoryPromise(message_name, count)
-    .then((result) => {
-      if (!result) {
-        return res.status(400).send("Message does not exist.");
-      }
-      return res.send(result.map(protoStringFromSpec));
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.status(500).send("Database error.");
-    });
-});
+routes.use("/proto", proto);
 
 export default routes;
