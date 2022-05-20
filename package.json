@@ -25,7 +25,7 @@
     "typescript": "^4.6.4"
   },
   "scripts": {
-    "start:dev": "concurrently \"tsc -w\" \"nodemon dist/server.js\"",
+    "start:dev": "concurrently -k \"tsc -w\" \"nodemon dist/server.js\"",
     "start:prod": "node dist/server.js",
     "build": "yarn build:types && yarn build:js",
     "build:types": "tsc --emitDeclarationOnly",
