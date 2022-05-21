@@ -1,6 +1,6 @@
 import { Router } from "express";
 import mongoose, { HydratedDocument } from "mongoose";
-import MessageModel, { IMessage } from "../models/message";
+import MessageModel, { IMessage, IField } from "../models/message";
 
 const routes = Router();
 
@@ -72,16 +72,28 @@ const getMessageHistoryPromise = (message_name: string, count: number) => {
   }).exec();
 };
 
+const cleanSpec = (message: IMessage) => {
+  let fields = message.fields.map((field) => ({
+    type: field.type,
+    name: field.name,
+    number: field.number,
+  }));
+  return { name: message.name, fields: fields };
+};
+
 routes.get("/:message_name", async (req, res, next) => {
   await mongoose.connect("mongodb://localhost:8080");
   let message_name = req.params.message_name;
+  let json = req.query.json;
   let count = 1;
   getMessageHistoryPromise(message_name, count)
     .then((result) => {
       if (!result) {
         return res.status(400).send("Message does not exist.");
       }
-      return res.send(protoStringFromSpec(result[0]));
+      return res.send(
+        json ? cleanSpec(result[0]) : protoStringFromSpec(result[0])
+      );
     })
     .catch((err) => {
       console.log(err);
