@@ -11,7 +11,8 @@
         "paths": {
             "*": [
                 "node_modules/*",
-                "@custom-types/*"
+                "@custom-types/*",
+                "server/*"
             ]
         },
         "allowJs": true,
