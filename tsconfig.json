@@ -12,17 +12,12 @@
             "*": [
                 "node_modules/*",
                 "@custom-types/*",
-                "server/*"
             ]
         },
         "allowJs": true,
         "strict": true,
-        "isolatedModules": true,
     },
     "include": [
         "server"
-    ],
-    "ts-node": {
-        "swc": true
-    }
+    ]
 }

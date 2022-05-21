@@ -1,6 +1,6 @@
 import { Router } from "express";
 import mongoose, { HydratedDocument } from "mongoose";
-import MessageModel, { IMessage } from "models/message";
+import MessageModel, { IMessage } from "../models/message";
 
 const routes = Router();
 

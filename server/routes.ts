@@ -1,5 +1,5 @@
 import { Router } from "express";
-import proto from "routes/proto";
+import proto from "./routes/proto";
 
 const routes = Router();
 
