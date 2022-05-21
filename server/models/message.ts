@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-interface IField {
+export interface IField {
   name: string;
   type: string;
   number: number;
