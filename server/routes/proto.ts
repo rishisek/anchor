@@ -14,7 +14,7 @@ const protoStringFromSpec = (spec: HydratedDocument<IMessage>) => {
   return message_str;
 };
 
-routes.post("/proto/create", async (req, res, next) => {
+routes.post("/create", async (req, res, next) => {
   await mongoose.connect("mongodb://localhost:8080");
   let message = new MessageModel(req.body);
 
@@ -39,7 +39,7 @@ routes.post("/proto/create", async (req, res, next) => {
   });
 });
 
-routes.post("/proto/update", async (req, res, next) => {
+routes.post("/update", async (req, res, next) => {
   await mongoose.connect("mongodb://localhost:8080");
   let message = new MessageModel(req.body);
   MessageModel.countDocuments({ name: message.name }).exec((err, result) => {
@@ -72,7 +72,7 @@ const getMessageHistoryPromise = (message_name: string, count: number) => {
   }).exec();
 };
 
-routes.get("/proto/:message_name", async (req, res, next) => {
+routes.get("/:message_name", async (req, res, next) => {
   await mongoose.connect("mongodb://localhost:8080");
   let message_name = req.params.message_name;
   let count = 1;
@@ -89,7 +89,7 @@ routes.get("/proto/:message_name", async (req, res, next) => {
     });
 });
 
-routes.get("/proto/:message_name/history", async (req, res, next) => {
+routes.get("/:message_name/history", async (req, res, next) => {
   await mongoose.connect("mongodb://localhost:8080");
   let message_name = req.params.message_name;
   let count = req.query.count ? +req.query.count : 10;
