@@ -12,16 +12,14 @@ const ProtobufField = styled.div``;
 interface Edit {
   type: "type" | "name" | "number" | "remove";
   index: number;
-  old_value?: string;
+  old_value?: string | undefined;
   old_field?: IField;
 }
 
 function Message() {
   let [edits, setEdits] = useState<Array<Edit>>([]);
-  let [fields, setFields] = useState<Array<IField>>([
-    { type: "string" } as IField,
-  ]);
-  let [name] = useState<string>("Test");
+  let [fields, setFields] = useState<Array<IField>>([{} as IField]);
+  let [name] = useState<string>("Testy");
   let [isNew, setIsNew] = useState<boolean>(false);
 
   useEffect(() => {
@@ -34,10 +32,7 @@ function Message() {
       .catch((err) => setIsNew(true));
   }, []);
 
-  const addField = (
-    index = fields.length,
-    field = { type: "string" } as IField
-  ) => {
+  const addField = (index = fields.length, field = {} as IField) => {
     setFields((fields) => [
       ...fields.slice(0, index),
       field,
@@ -83,7 +78,11 @@ function Message() {
       ]);
       setEdits((edits) => [
         ...edits,
-        { type: prop, index: index, old_value: old_value.toString() },
+        {
+          type: prop,
+          index: index,
+          old_value: old_value === undefined ? undefined : old_value.toString(),
+        },
       ]);
     };
 
