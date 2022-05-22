@@ -12,6 +12,9 @@ const SelectField = styled.select``;
 const Select = ({ name, options, value, onChange }: Props) => {
   return (
     <SelectField name={name} value={value} onChange={onChange}>
+      <option hidden disabled selected>
+        Select
+      </option>
       {options.map((option) => (
         <option value={option}>{option}</option>
       ))}
