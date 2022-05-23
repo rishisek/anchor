@@ -40,6 +40,13 @@ routes.post("/create", async (req, res, next) => {
   });
 });
 
+const getMessageHistoryPromise = (message_name: string, count: number) => {
+  return MessageModel.find({ name: message_name }, null, {
+    sort: { version: -1 },
+    limit: count,
+  }).exec();
+};
+
 routes.post("/update", async (req, res, next) => {
   await mongoose.connect("mongodb://localhost:8080");
   let message = new MessageModel(req.body);
@@ -70,12 +77,19 @@ routes.post("/update", async (req, res, next) => {
     });
 });
 
-const getMessageHistoryPromise = (message_name: string, count: number) => {
-  return MessageModel.find({ name: message_name }, null, {
-    sort: { version: -1 },
-    limit: count,
-  }).exec();
-};
+routes.get("/messages", async (req, res, next) => {
+  await mongoose.connect("mongodb://localhost:8080");
+  MessageModel.find()
+    .distinct("name")
+    .exec()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).send("Database error.");
+    });
+});
 
 const cleanSpec = (message: IMessage) => {
   let fields = message.fields.map((field) => ({
