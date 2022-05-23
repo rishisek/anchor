@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Select from "components/Select";
 import Input from "components/Input";
 import { IMessage, IField } from "@server/models/message";
+import { useParams } from "react-router-dom";
 
 const Wrapper = styled.div``;
 
@@ -16,21 +17,21 @@ interface Edit {
   old_field?: IField;
 }
 
-function Message() {
+const Message = () => {
+  let params = useParams();
   let [edits, setEdits] = useState<Array<Edit>>([]);
   let [fields, setFields] = useState<Array<IField>>([{} as IField]);
-  let [name] = useState<string>("Testy");
   let [isNew, setIsNew] = useState<boolean>(false);
 
   useEffect(() => {
     axios
-      .get(`/proto/${name}?json=true`)
+      .get(`/proto/${params.name}?json=true`)
       .then((res) => {
         let message = res.data as IMessage;
         setFields(message.fields);
       })
       .catch((err) => setIsNew(true));
-  }, []);
+  }, [params.name]);
 
   const addField = (index = fields.length, field = {} as IField) => {
     setFields((fields) => [
@@ -43,7 +44,7 @@ function Message() {
   const submit = () => {
     axios
       .post(isNew ? "/proto/create" : "/proto/update", {
-        name: name,
+        name: params.name,
         fields: fields,
       })
       .then((res) => {
@@ -121,7 +122,7 @@ function Message() {
 
   return (
     <Wrapper>
-      <p>{name}</p>
+      <p>{params.name}</p>
       {fields.map((field, index) => (
         <ProtobufField>
           <Select
@@ -152,6 +153,6 @@ function Message() {
       <button onClick={undo}>Undo</button>
     </Wrapper>
   );
-}
+};
 
 export default Message;

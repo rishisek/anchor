@@ -1,9 +1,9 @@
 import styled from "styled-components";
-import Message from "./Message";
+import MessageList from "components/MessageList";
+import { Outlet } from "react-router-dom";
 
 const Wrapper = styled.div`
   text-align: center;
-
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -17,7 +17,8 @@ const Wrapper = styled.div`
 function App() {
   return (
     <Wrapper>
-      <Message />
+      <MessageList />
+      <Outlet />
     </Wrapper>
   );
 }
