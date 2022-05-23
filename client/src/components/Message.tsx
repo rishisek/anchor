@@ -1,12 +1,17 @@
 import styled from "styled-components";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Select from "components/Select";
 import Input from "components/Input";
 import { IMessage, IField } from "@server/models/message";
 import { useParams } from "react-router-dom";
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+  display: flex;
+`;
+
+const Form = styled.div``;
+const Render = styled.div``;
 
 const ProtobufField = styled.div``;
 
@@ -22,6 +27,16 @@ const Message = () => {
   let [edits, setEdits] = useState<Array<Edit>>([]);
   let [fields, setFields] = useState<Array<IField>>([{} as IField]);
   let [isNew, setIsNew] = useState<boolean>(false);
+  let [render, setRender] = useState<string>("");
+
+  const refreshRender = useCallback(() => {
+    axios
+      .get(`/proto/${params.name}`)
+      .then((res) => {
+        setRender(res.data);
+      })
+      .catch((err) => setIsNew(true));
+  }, [params.name]);
 
   useEffect(() => {
     axios
@@ -29,9 +44,10 @@ const Message = () => {
       .then((res) => {
         let message = res.data as IMessage;
         setFields(message.fields);
+        refreshRender();
       })
       .catch((err) => setIsNew(true));
-  }, [params.name]);
+  }, [params.name, refreshRender]);
 
   const addField = (index = fields.length, field = {} as IField) => {
     setFields((fields) => [
@@ -50,7 +66,9 @@ const Message = () => {
       .then((res) => {
         console.log(res);
         setIsNew(false);
-      });
+      })
+      .catch((e) => console.log(e));
+    refreshRender();
   };
 
   const onFieldChange =
@@ -122,35 +140,38 @@ const Message = () => {
 
   return (
     <Wrapper>
-      <p>{params.name}</p>
-      {fields.map((field, index) => (
-        <ProtobufField>
-          <Select
-            name="type"
-            options={["string", "int"]}
-            value={field.type}
-            onChange={onFieldChange(index, "type")}
-          />
-          <Input
-            name="name"
-            type="text"
-            placeholder="Name"
-            value={field.name}
-            onChange={onFieldChange(index, "name")}
-          />
-          <Input
-            name="number"
-            type="number"
-            placeholder="Field"
-            value={field.number}
-            onChange={onFieldChange(index, "number")}
-          />
-          <button onClick={remove(index)}>-</button>
-        </ProtobufField>
-      ))}
-      <button onClick={() => addField()}>+</button>
-      <button onClick={submit}>Save</button>
-      <button onClick={undo}>Undo</button>
+      <Form>
+        <p>{params.name}</p>
+        {fields.map((field, index) => (
+          <ProtobufField>
+            <Select
+              name="type"
+              options={["string", "int"]}
+              value={field.type}
+              onChange={onFieldChange(index, "type")}
+            />
+            <Input
+              name="name"
+              type="text"
+              placeholder="Name"
+              value={field.name}
+              onChange={onFieldChange(index, "name")}
+            />
+            <Input
+              name="number"
+              type="number"
+              placeholder="Field"
+              value={field.number}
+              onChange={onFieldChange(index, "number")}
+            />
+            <button onClick={remove(index)}>-</button>
+          </ProtobufField>
+        ))}
+        <button onClick={() => addField()}>+</button>
+        <button onClick={submit}>Save</button>
+        <button onClick={undo}>Undo</button>
+      </Form>
+      <Render>{render}</Render>
     </Wrapper>
   );
 };
